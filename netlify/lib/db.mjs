@@ -3,7 +3,7 @@ import cepData from './cep-data.json' with {type:'json'};
 let pool, ready;
 export function db(){
  if(!pool){const u=new URL(process.env.DATABASE_URL||'');if(u.protocol!=='mysql:')throw Error('DATABASE_URL inválida');
- pool=mysql.createPool({host:u.hostname,port:Number(u.port||3306),user:decodeURIComponent(u.username),password:decodeURIComponent(u.password),database:decodeURIComponent(u.pathname.slice(1)),ssl:{rejectUnauthorized:true,...(process.env.MYSQL_SSL_CA?{ca:process.env.MYSQL_SSL_CA.replace(/\\n/g,'\n')}:{})},connectionLimit:2,connectTimeout:7000,dateStrings:true,timezone:'Z',multipleStatements:false});}return pool;
+ pool=mysql.createPool({host:u.hostname,port:Number(u.port||3306),user:decodeURIComponent(u.username),password:decodeURIComponent(u.password),database:decodeURIComponent(u.pathname.slice(1)),...(process.env.RAILWAY_PRIVATE_DB==='true'&&process.env.RAILWAY_ENVIRONMENT_ID&&u.hostname.endsWith('.railway.internal')?{}:{ssl:{rejectUnauthorized:true,...(process.env.MYSQL_SSL_CA?{ca:process.env.MYSQL_SSL_CA.replace(/\\n/g,'\n')}:{})}}),connectionLimit:2,connectTimeout:7000,dateStrings:true,timezone:'Z',multipleStatements:false});}return pool;
 }
 export const initialProducts=[['The OG',1400,''],['Dark Side',1600,''],['Nutella Crush',1900,''],['Caramel Affair',1900,''],['Kinder Crush',2200,''],["S'more Christmas Please",2300,'Chocolate, marshmallow e biscoito crocante.'],['Orange You Sweet?',2300,'Laranja e caramelo salgado.'],['Ginger Bells',2300,'Especiarias natalinas.']].map(([n,p,d],id)=>({id,n,p,d,tag:id<5?'Clássicos':'Especial de Natal',active:true,img:''}));
 export const defaults={products:initialProducts,capacity:5,daily:60,blocked:[],rates:Array.from({length:15},(_,i)=>800+200*i),faixas:[]};
