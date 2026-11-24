@@ -1,0 +1,2 @@
+import {reply} from '../lib/rules.mjs';import {verify} from '../lib/verify-payment.mjs';
+export default async req=>{if(req.method!=='POST')return reply(405,{});try{const raw=await req.text();if(raw.length>64000)return reply(413,{});const r=await verify(JSON.parse(raw));return reply(r.pago||r.revisao?200:400,{success:r.pago||r.revisao});}catch(e){console.error('webhook',e.code||e.name);return reply(400,{success:false});}};

@@ -22,23 +22,22 @@ a.link{display:block;margin-top:12px;color:#b3202f}
 </main>
 <script>
 var q = new URLSearchParams(location.search), tentativas = 0;
-if (q.get("receipt_url")) { var a = document.getElementById("recibo"); a.href = q.get("receipt_url"); a.hidden = false; }
 async function checar() {
   tentativas++;
   try {
     var r = await fetch("/.netlify/functions/status-pagamento?" + q.toString());
     var j = await r.json();
+    if(j.revisao){document.getElementById("titulo").textContent="Pagamento em revisão";document.getElementById("texto").textContent="O pagamento chegou após o prazo de reserva. Entre em contato com a Coolkies para combinar a solução.";return;}
     if (j.pago) {
       document.getElementById("titulo").textContent = "Pedido confirmado! 🍪";
-      document.getElementById("texto").textContent = "Recebemos o seu pagamento. Entrega agendada para " +
-        j.entrega.date.split("-").reverse().join("/") + " às " + j.entrega.time + ".";
+      document.getElementById("texto").textContent = "Recebemos o seu pagamento. Seu pedido está confirmado.";
       return;
     }
   } catch (e) {}
   if (tentativas < 6) setTimeout(checar, 3000);
   else {
     document.getElementById("titulo").textContent = "Ainda estamos confirmando";
-    document.getElementById("texto").textContent = "Se você já pagou, fique tranquilo: avisaremos pelo WhatsApp assim que o pagamento for confirmado.";
+    document.getElementById("texto").textContent = "Se você já pagou, não pague novamente. Entre em contato com a Coolkies se a confirmação não aparecer.";
   }
 }
 checar();
