@@ -270,18 +270,18 @@ textarea{resize:vertical}.gift-summary label{margin-top:12px}
 <main>
 <section id="como" data-v="clube"><div class="wrap">
   <h2>Como funciona</h2>
-  <p class="sub">Você escolhe uma vez e a caixa chega todo mês. Dá para trocar os sabores quando quiser.</p>
+  <p class="sub">Você escolhe uma vez e a caixa chega entre os dias 5 e 10 de cada mês. Dá para trocar os sabores quando quiser.</p>
   <div class="three">
     <div class="tile"><div class="n">1</div><h3>Escolha 3 sabores</h3><p>Entre The OG, Dark Side, Nutella Crush, Caramel Affair e Kinder Crush. Pode repetir o seu favorito.</p></div>
     <div class="tile"><div class="n">2</div><h3>Ganhe o Capítulo do Mês</h3><p>O quarto cookie é inspirado em um livro e muda todo mês. É um sabor que só o clube recebe.</p></div>
-    <div class="tile"><div class="n">3</div><h3>Receba em casa</h3><p>Entregamos em São Paulo e Grande SP, sempre no início do mês. No Clube Coolkies, o frete é grátis.</p></div>
+    <div class="tile"><div class="n">3</div><h3>Receba em casa</h3><p>Entregamos em São Paulo e Grande SP, entre os dias 5 e 10 de cada mês. No Clube Coolkies, o frete é grátis.</p></div>
     <div class="tile"><div class="n">+</div><h3>Marcador de página</h3><p>Junto do cookie vai um marcador ilustrado com o livro do mês e com o sabor do cookie. No verso, a ficha do sabor e a numeração da coleção.</p></div>
   </div>
 </div></section>
 
 <section id="assinar" data-v="clube"><div class="wrap">
   <h2>Monte sua caixa</h2>
-  <p class="sub">Assine até o dia 25 para receber a caixa de dezembro, com Black Forest Christmas e o marcador de Um Conto de Natal.</p>
+  <p class="sub">Assine até o dia 25 (inclusive) para receber a edição do mês seguinte. A partir do dia 26, sua primeira caixa será da edição subsequente. As entregas acontecem entre os dias 5 e 10 de cada mês.</p><p class="note" id="clubFirstDelivery" aria-live="polite">Calculando a primeira entrega…</p>
   <div class="build">
     <div>
       <p class="count" id="count" aria-live="polite"></p>
@@ -602,6 +602,9 @@ $("mes").innerHTML = MESES.map(function(x){
     '<h3>'+x.n+'</h3><p>'+x.d+'</p><p><em>'+x.l+'</em></p></div><div class="mk" style="--mk:'+x.k+'" aria-hidden="true">'+x.a+'</div></div>';
 }).join("");
 
+function clubFirstDelivery(now=new Date()){var parts=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'numeric',day:'numeric'}).formatToParts(now),get=t=>Number(parts.find(p=>p.type===t).value);var date=new Date(Date.UTC(get('year'),get('month')-1+(get('day')<=25?1:2),5));return '5 a 10 de '+new Intl.DateTimeFormat('pt-BR',{month:'long',year:'numeric',timeZone:'UTC'}).format(date);}
+function refreshClubDelivery(){document.getElementById('clubFirstDelivery').textContent='Sua primeira entrega prevista: '+clubFirstDelivery()+'.';}
+refreshClubDelivery();document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshClubDelivery();});
 $("send").onclick = function(){
   var l = lista();
   if(l.length < MAX){ $("count").scrollIntoView({block:"center"}); return; }
@@ -613,6 +616,7 @@ $("send").onclick = function(){
   var msg = "Olá, Coolkies! Quero assinar o Clube:\n\nPlano: "+pl.n+" ("+brl(pl.p)+"/mês)\nMinha caixa:\n";
   Object.keys(SAB).forEach(function(k){ if(qtd[k]) msg += "- "+qtd[k]+"x "+SAB[k].n+"\n"; });
   msg += "- 1x Capítulo do mês ("+ESP.n+", inspirado em "+ESP.l+") + marcador de página\n\nNome: "+nome+"\nEndereço: "+end+"\nCEP: "+$("cep").value.trim()+" ("+(zona==="capital" ? "capital, frete a calcular" : "Grande SP, frete a calcular")+")";
+  msg += "\nPrimeira entrega prevista: "+clubFirstDelivery()+" (entregas mensais entre os dias 5 e 10).";
   openCoolkiesWhatsApp(msg);
 };
 // Clube Coolkies: frete grátis para todas as entregas dentro da área atendida.
