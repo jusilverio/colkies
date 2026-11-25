@@ -6,7 +6,8 @@ import frete from './netlify/functions/frete.mjs';
 import checkout from './netlify/functions/create-checkout.mjs';
 import status from './netlify/functions/status-pagamento.mjs';
 import webhook from './netlify/functions/webhook-infinitepay.mjs';
-const routes=new Map(Object.entries({admin,loja,frete,'create-checkout':checkout,'status-pagamento':status,'webhook-infinitepay':webhook}));
+import simulation from './netlify/functions/simulation.mjs';
+const routes=new Map(Object.entries({simulation,admin,loja,frete,'create-checkout':checkout,'status-pagamento':status,'webhook-infinitepay':webhook}));
 const send=(res,status,data)=>{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(data));};
 let ready=false;
 async function prepare(){try{await init();const n=await seedFreight();ready=true;console.log('MySQL initialized; CEP count:',n);}catch(e){ready=false;console.error('DB initialization:',e.code||e.name);setTimeout(prepare,10000).unref();}}
