@@ -3,7 +3,7 @@ import {readFile} from 'node:fs/promises';
 import {Readable} from 'node:stream';
 const origin='https://coolkies-api-production.up.railway.app';
 const pages=new Map([['/','index.html'],['/index.html','index.html'],['/admin.html','admin.html'],['/obrigado.html','obrigado.html'],['/acompanhar.html','acompanhar.html'],['/simulation.html','simulation.html']]);
-const routes=new Set(['club','club-admin','admin','loja','frete','create-checkout','status-pagamento','webhook-infinitepay','simulation','acompanhamento']);
+const routes=new Set(['finance','club','club-admin','admin','loja','frete','create-checkout','status-pagamento','webhook-infinitepay','simulation','acompanhamento']);
 const headers={'Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff'};
 const json=(res,status,message)=>{res.writeHead(status,{...headers,'Content-Type':'application/json'});res.end(JSON.stringify({message}));};
 const server=http.createServer(async(req,res)=>{try{
@@ -12,7 +12,7 @@ const server=http.createServer(async(req,res)=>{try{
  const m=/^\/\.netlify\/functions\/([a-z-]+)$/.exec(u.pathname);
  if(m&&routes.has(m[1])){
  if(!['GET','HEAD','POST'].includes(method))return json(res,405,'Método inválido');
- const limit=m[1]==='admin'?20*1024*1024:64000;let size=0;const chunks=[];
+ const limit=['admin','finance'].includes(m[1])?20*1024*1024:64000;let size=0;const chunks=[];
  if(method==='POST')for await(const chunk of req){size+=chunk.length;if(size>limit)return json(res,413,'Solicitação muito grande');chunks.push(chunk);}
  const h={};for(const k of ['authorization','content-type'])if(typeof req.headers[k]==='string')h[k]=req.headers[k];
  const upstream=await fetch(origin+u.pathname+u.search,{method,headers:h,body:method==='POST'?Buffer.concat(chunks):undefined,redirect:'manual',signal:AbortSignal.timeout(25000)});
