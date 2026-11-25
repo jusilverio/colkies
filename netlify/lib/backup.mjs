@@ -3,7 +3,7 @@ import {promisify} from 'node:util';
 import {gzip} from 'node:zlib';
 import {db,init} from './db.mjs';
 const derive=promisify(scrypt),zip=promisify(gzip);
-const tables=['store_settings','delivery_days','customers','orders','payments','freight_ceps','checkout_links','migrations','admin_audit','tracking_tokens','club_members','club_cycles','finance_settings'];
+const tables=['store_settings','delivery_days','customers','orders','payments','freight_ceps','checkout_links','migrations','admin_audit','tracking_tokens','club_members','club_cycles','finance_settings','club_benefits'];
 let busy=false;
 export async function backup(pass){
  if(typeof pass!=='string'||pass.length<24||pass.length>256)throw Error('Use uma frase de recuperação com pelo menos 24 caracteres.');
