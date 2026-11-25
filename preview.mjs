@@ -44,7 +44,7 @@ function activateClub(html){
 
 function activateBenefits(html){
 const patches=[
-["cookie(ESP.c)+'<span class=\"lbl\">Capítulo do mês","(el.id==='heroBox'&&document.querySelector('.chapter-photo')?'<img class=\"cookie\" alt=\"Black Forest Christmas\" style=\"object-fit:cover;display:block;\" src=\"'+document.querySelector('.chapter-photo').getAttribute('src')+'\">':cookie(ESP.c))+'<span class=\"lbl\">Capítulo do mês"],
+["cookie(ESP.c)+'<span class=\"lbl\">Capítulo do mês","(['heroBox','myBox'].includes(el.id)&&document.querySelector('.chapter-photo')?'<img class=\"cookie\" alt=\"Black Forest Christmas\" style=\"object-fit:cover;display:block;\" src=\"'+document.querySelector('.chapter-photo').getAttribute('src')+'\">':cookie(ESP.c))+'<span class=\"lbl\">Capítulo do mês"],
 ["<div class=\"tile\"><div class=\"n\">+</div><h3>Marcador de página</h3><p>Junto com os cookies vai um marcador ilustrado inspirado no livro do mês e no sabor do cookie.</p></div>","<div class=\"tile\"><div class=\"n\">4</div><h3>Benefícios exclusivos</h3><p>Ganhe 5% de desconto nos cookies avulsos com o plano trimestral e 10% com o semestral. Use seu código pessoal enquanto a assinatura estiver ativa e em dia.</p></div><div class=\"tile\"><div class=\"n\">+</div><h3>Marcador de página</h3><p>Junto com os cookies vai um marcador ilustrado inspirado no livro do mês e no sabor do cookie.</p></div>"],
 ['Economize R$ 15 em 3 caixas','Economize R$ 15 em 3 caixas + 5% OFF nos cookies avulsos'],
 ['Economize R$ 60 em 6 caixas','Economize R$ 60 em 6 caixas + 10% OFF nos cookies avulsos'],
