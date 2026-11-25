@@ -531,14 +531,14 @@ renderAvulsos();loadShop();
 function isGiftOrder(){return $('isGift').checked;}
 var PACKAGING_PRICES = {caixa:8,lata:15};
 function packCount(id){var n=Number($(id).value);return Number.isInteger(n)&&n>=0&&n<=100?n:0;}
-function selectedPackaging(){return [...Array(packCount('giftBoxes')).fill('caixa'),...Array(packCount('giftTins')).fill('lata')];}
+function selectedPackaging(){return {caixas:packCount('giftBoxes'),latas:packCount('giftTins')};}
 function giftUnits(){return Object.values(carrinho).reduce((a,b)=>a+Number(b),0);}
 function giftCapacity(){return 4*packCount('giftBoxes')+6*packCount('giftTins');}
 function updateGiftPacks(){giftSummary();}
 function giftSummary(){var n=giftUnits(),cap=giftCapacity();$('giftPackTotal').textContent=!cap?'Escolha as embalagens do presente.':n===cap?'Embalagens completas: '+n+' cookies.':n<cap?'Adicione '+(cap-n)+' cookie(s) para completar as embalagens.':'Há '+(n-cap)+' cookie(s) a mais. Ajuste os cookies ou as embalagens.';$('checkoutAvulsos').disabled=!n||(isGiftOrder()&&(!cap||n!==cap));}
 $('giftBoxes').addEventListener('input',giftSummary);$('giftTins').addEventListener('input',giftSummary);
 $('startGift').onclick=function(){$('isGift').checked=true;$('isGift').dispatchEvent(new Event('change'));location.hash='avulsos';};
-function packagingPrice(mode){return mode==='presente'?selectedPackaging().reduce((sum,k)=>sum+PACKAGING_PRICES[k],0):0;}
+function packagingPrice(mode){return mode==='presente'?packCount('giftBoxes')*PACKAGING_PRICES.caixa+packCount('giftTins')*PACKAGING_PRICES.lata:0;}
 $('isGift').addEventListener('change',function(){
   $('giftOptions').hidden=!this.checked;updateGiftPacks();
   $('checkoutAvulsos').textContent=this.checked?'Continuar com meu presente':'Continuar para o checkout';
@@ -742,7 +742,8 @@ $('ckQuote').addEventListener('click',async function(){
   if(checkoutMode==='presente')$('ckPackaging').textContent=brl((json.packaging_cents||0)/100);
   $('ckTotal').textContent=brl(checkoutSubtotal(lines)+json.shipping_cents/100+(json.packaging_cents||0)/100);
   lastTotalCents=Math.round(checkoutSubtotal(lines)*100)+json.shipping_cents+(json.packaging_cents||0);
-  $('ckPay').disabled=false;
+  $('ckPay').disabled=!json.payments_enabled;
+  if(!json.payments_enabled)$('ckStatus').textContent+=' Pagamentos indisponíveis neste ambiente.';
   quotedFingerprint=checkoutFingerprint();
   checkoutRequestId=crypto.randomUUID?crypto.randomUUID():null;
  } catch(err){
@@ -753,8 +754,9 @@ var lastTotalCents=0, quotedFingerprint='', checkoutRequestId=null;
 function checkoutFingerprint(){return JSON.stringify([checkoutMode,deliveryForm(),selectedDelivery(),checkoutLines(checkoutMode), selectedPackaging(),$('giftTo').value,$('giftFrom').value,$('giftMessage').value]);}
 $('checkoutBackdrop').addEventListener('input',function(){if(quotedFingerprint!==checkoutFingerprint()){$('ckPay').disabled=true;$('ckStatus').textContent='Dados alterados. Verifique o frete novamente.';}});
 
-$('ckPay').addEventListener('click',function(){if(quotedFingerprint!==checkoutFingerprint()){ $('ckStatus').textContent='Verifique o frete novamente.';return;}var d=deliveryForm();if(!d.name||!d.email.includes('@')||!d.phone){$('ckStatus').textContent='Preencha nome, e-mail e telefone.';return;}closeCheckout();var panel=document.createElement('div');panel.className='checkout-backdrop';panel.innerHTML='<section class="checkout-modal"><h2>Pedido confirmado! 🍪</h2><p>Simulação de pagamento aprovado. Nenhum valor foi cobrado.</p><button class="btn red" id="demoTrack">Acompanhar meu pedido</button><button class="btn" id="demoClose">Voltar à loja</button><div id="demoTracking" hidden><h3>Pedido confirmado</h3><p>Recebemos seu pedido. Em uma compra real, seu link exclusivo apareceria aqui.</p><p>Pedido confirmado → Em produção → Pronto → Saiu para entrega → Entregue</p></div></section>';document.body.append(panel);$('demoTrack').onclick=()=>{$('demoTracking').hidden=false;};$('demoClose').onclick=()=>panel.remove();});
+$('ckPay').addEventListener('click',async function(){if(quotedFingerprint!==checkoutFingerprint()||!checkoutRequestId){$('ckStatus').textContent='Verifique o frete novamente.';return;}var d=deliveryForm();if(!d.name||!d.email.includes('@')||!d.phone){$('ckStatus').textContent='Preencha nome, e-mail e telefone.';return;}$('ckPay').disabled=true;try{var resp=await fetch('/.netlify/functions/create-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({request_id:checkoutRequestId,tipo:checkoutMode,cliente:d,agendamento:selectedDelivery(),items:checkoutLines(checkoutMode).map(({id,quantity})=>({id,quantity})),embalagem:checkoutMode==='presente'?selectedPackaging():null,presente:{para:$('giftTo').value,de:$('giftFrom').value,mensagem:$('giftMessage').value},total_esperado_cents:lastTotalCents})});var j=await resp.json();if(!resp.ok)throw Error(j.message||'Pagamento indisponível');var u=new URL(j.url);if(u.protocol!=='https:'||!['checkout.infinitepay.com.br','checkout.infinitepay.io','buy.infinitepay.io'].includes(u.hostname))throw Error('Link inválido');location.assign(u.href);}catch(e){$('ckStatus').textContent=e.message||'Não foi possível iniciar o pagamento.';}});
 updateGiftPacks();
+loadShop();
 </script>
 </body>
 </html>
