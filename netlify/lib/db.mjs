@@ -24,6 +24,7 @@ async function setup(){const p=db();
  await p.query(`CREATE TABLE IF NOT EXISTS freight_ceps (cep CHAR(8) PRIMARY KEY, estimated_km DECIMAL(10,6) NOT NULL, band TINYINT NOT NULL) ENGINE=InnoDB`);
  await p.query(`CREATE TABLE IF NOT EXISTS checkout_links (order_id CHAR(36) PRIMARY KEY, url VARCHAR(2048) NOT NULL, FOREIGN KEY(order_id) REFERENCES orders(id)) ENGINE=InnoDB`);
  await p.query(`CREATE TABLE IF NOT EXISTS migrations (id VARCHAR(80) PRIMARY KEY) ENGINE=InnoDB`);
+ await p.query(`CREATE TABLE IF NOT EXISTS admin_audit (id BIGINT AUTO_INCREMENT PRIMARY KEY, action VARCHAR(40) NOT NULL, target VARCHAR(64) NOT NULL DEFAULT '', created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6)) ENGINE=InnoDB`);
  await p.execute('INSERT IGNORE INTO store_settings(id,config) VALUES (1,?)',[JSON.stringify(defaults)]);
 }
 export async function settings(c=db(),lock=false){const [[r]]=await c.query('SELECT config FROM store_settings WHERE id=1'+(lock?' FOR UPDATE':''));return parse(r.config);}

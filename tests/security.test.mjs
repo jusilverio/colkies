@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {authorized,allowed} from '../netlify/lib/security.mjs';
+test('admin authorization',()=>{const s='a'.repeat(20);assert.equal(authorized('Bearer '+s,s),true);assert.equal(authorized(s,s),false);assert.equal(authorized('Bearer wrong',s),false);assert.equal(authorized('Bearer short','short'),false);});
+test('limiter resets',()=>{assert.equal(allowed('test',2,1000,0),true);assert.equal(allowed('test',2,1000,1),true);assert.equal(allowed('test',2,1000,2),false);assert.equal(allowed('test',2,1000,1001),true);});
