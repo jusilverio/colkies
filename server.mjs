@@ -11,10 +11,11 @@ import simulation from './netlify/functions/simulation.mjs';
 import tracking from './netlify/functions/acompanhamento.mjs';
 import club,{setupClub,clubAdmin} from './netlify/functions/club.mjs';
 import finance,{setupFinance} from './netlify/functions/finance.mjs';
+import {setupBenefits} from './netlify/lib/benefits.mjs';
 const routes=new Map(Object.entries({finance,club,'club-admin':async req=>req.method==='POST'?clubAdmin(await req.json()):new Response('{}',{status:405}),acompanhamento:tracking,simulation,admin,loja,frete,'create-checkout':checkout,'status-pagamento':status,'webhook-infinitepay':webhook}));
 const send=(res,status,data)=>{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(data));};
 let ready=false;
-async function prepare(){try{await init();const n=await seedFreight();await setupClub();await setupFinance();ready=true;console.log('MySQL initialized; CEP count:',n);}catch(e){ready=false;console.error('DB initialization:',e.code||e.name);setTimeout(prepare,10000).unref();}}
+async function prepare(){try{await init();const n=await seedFreight();await setupClub();await setupBenefits();await setupFinance();ready=true;console.log('MySQL initialized; CEP count:',n);}catch(e){ready=false;console.error('DB initialization:',e.code||e.name);setTimeout(prepare,10000).unref();}}
 const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');if(url.pathname==='/health'){if(!ready)return send(res,503,{ok:false});try{await db().query('SELECT 1');return send(res,200,{ok:true});}catch{return send(res,503,{ok:false});}}
 const match=/^\/\.netlify\/functions\/([a-z-]+)$/.exec(url.pathname);const handler=match&&routes.get(match[1]);if(!handler)return send(res,404,{message:'Não encontrado'});if(!ready)return send(res,503,{message:'Banco indisponível.'});
 const route=match[1],restricted=['admin','simulation','club-admin','finance'].includes(route);
