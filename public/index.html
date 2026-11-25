@@ -298,8 +298,8 @@ textarea{resize:vertical}.gift-summary label{margin-top:12px}
       <p class="note" id="cepMsg" aria-live="polite">Entregamos em São Paulo e Grande São Paulo.</p>
       <label for="end">Endereço de entrega</label>
       <input id="end" autocomplete="street-address" placeholder="Rua, número, bairro e CEP">
-      <button class="btn red" id="send" style="width:100%;margin-top:18px">Assinar pelo WhatsApp</button>
-      <p class="note">Você vai para o WhatsApp com a assinatura pronta. A gente confirma o endereço e combina o pagamento por lá.</p>
+      <button class="btn red" id="send" style="width:100%;margin-top:18px">Assinar</button>
+      <p class="note">Você seguirá para a etapa de pagamento da assinatura.</p><p class="note" id="clubPaymentStatus" role="status" aria-live="polite">Pagamento recorrente em preparação. Nenhuma cobrança será realizada por enquanto.</p>
     </div>
   </div>
 </div></section>
@@ -390,7 +390,7 @@ textarea{resize:vertical}.gift-summary label{margin-top:12px}
   <details><summary>O que vem no marcador de página?</summary><p>Uma ilustração inspirada no livro do mês e no sabor do cookie, a ficha do sabor no verso e a numeração da coleção, para você juntar um marcador por caixa.</p></details>
   <details><summary>Posso trocar os sabores depois?</summary><p>Pode. É só avisar até o dia 25 e a próxima caixa já vem com os novos sabores.</p></details>
   <details><summary>Posso cancelar quando quiser?</summary><p>Sim, sem multa. Avise até o dia 25 para a caixa seguinte não ser enviada.</p></details>
-  <details><summary>Como funciona o pagamento?</summary><p>Você paga por Pix ou cartão, combinado direto pelo WhatsApp, e recebe a confirmação antes do envio.</p></details>
+  <details><summary>Como funciona o pagamento?</summary><p>O Clube terá pagamento mensal recorrente em uma plataforma segura. A contratação online estará disponível após a integração de pagamentos.</p></details>
   <details><summary>Quanto tempo os cookies duram?</summary><p>Por volta de 5 dias fechados na caixa. Para durar mais, congele e aqueça uns segundos antes de comer.</p></details>
 </div></section>
 <section data-v="historia" id="historia"><div class="wrap story">
@@ -606,18 +606,18 @@ function clubFirstDelivery(now=new Date()){var parts=new Intl.DateTimeFormat('en
 function refreshClubDelivery(){document.getElementById('clubFirstDelivery').textContent='Sua primeira entrega prevista: '+clubFirstDelivery()+'.';}
 refreshClubDelivery();document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshClubDelivery();});
 $("send").onclick = function(){
-  var l = lista();
-  if(l.length < MAX){ $("count").scrollIntoView({block:"center"}); return; }
-  var nome = $("nome").value.trim(), end = $("end").value.trim(), zona = cepZona($("cep").value);
-  if(!zona || zona === "fora"){ $("cep").focus(); return; }
-  if(!nome){ $("nome").focus(); return; }
-  if(!end){ $("end").focus(); return; }
-  var pl = PLANOS.filter(function(x){return x.id===plano})[0];
-  var msg = "Olá, Coolkies! Quero assinar o Clube:\n\nPlano: "+pl.n+" ("+brl(pl.p)+"/mês)\nMinha caixa:\n";
-  Object.keys(SAB).forEach(function(k){ if(qtd[k]) msg += "- "+qtd[k]+"x "+SAB[k].n+"\n"; });
-  msg += "- 1x Capítulo do mês ("+ESP.n+", inspirado em "+ESP.l+") + marcador de página\n\nNome: "+nome+"\nEndereço: "+end+"\nCEP: "+$("cep").value.trim()+" ("+(zona==="capital" ? "capital, frete a calcular" : "Grande SP, frete a calcular")+")";
-  msg += "\nPrimeira entrega prevista: "+clubFirstDelivery()+" (entregas mensais entre os dias 5 e 10).";
-  openCoolkiesWhatsApp(msg);
+  var status=$("clubPaymentStatus");
+  var l=lista();
+  if(l.length!==MAX){status.textContent="Escolha os 3 cookies da sua caixa."; $("count").scrollIntoView({block:"center"}); return;}
+  var nome=$("nome").value.trim(), end=$("end").value.trim(), zona=cepZona($("cep").value);
+  if(!zona||zona==="fora"){status.textContent="Informe um CEP da região atendida."; $("cep").focus();return;}
+  if(!nome){status.textContent="Informe seu nome."; $("nome").focus();return;}
+  if(!end){status.textContent="Informe seu endereço."; $("end").focus();return;}
+  var pl=PLANOS.find(function(x){return x.id===plano;});
+  if(!pl){status.textContent="Selecione um plano.";return;}
+  // A integração futura deverá criar a assinatura no servidor, revalidar preços e CEP,
+  // coletar o aceite contratual e redirecionar para um checkout autorizado.
+  status.textContent="O pagamento recorrente ainda não está disponível. Nenhuma assinatura ou cobrança foi criada.";
 };
 // Clube Coolkies: frete grátis para todas as entregas dentro da área atendida.
 function cepZona(v){
