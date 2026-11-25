@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Pedido Coolkies</title>
+<style>
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:#fff7f3;color:#2c1620;font-family:system-ui,sans-serif;padding:20px}
+main{max-width:480px;text-align:center}
+h1{margin:0 0 10px}
+a.btn{display:inline-block;margin-top:18px;padding:12px 22px;border-radius:99px;background:#b3202f;color:#fff;text-decoration:none}
+a.link{display:block;margin-top:12px;color:#b3202f}
+</style>
+</head>
+<body>
+<main>
+  <h1 id="titulo">Confirmando seu pagamento…</h1>
+  <p id="texto">Só um instante.</p>
+  <a id="recibo" class="link" hidden target="_blank" rel="noopener">Ver comprovante</a>
+  <a class="btn" href="/">Voltar para a Coolkies</a>
+</main>
+<script>
+var q = new URLSearchParams(location.search), tentativas = 0;
+async function checar() {
+  tentativas++;
+  try {
+    var r = await fetch("/.netlify/functions/status-pagamento?" + q.toString());
+    var j = await r.json();
+    if(j.revisao){document.getElementById("titulo").textContent="Pagamento em revisão";document.getElementById("texto").textContent="O pagamento chegou após o prazo de reserva. Entre em contato com a Coolkies para combinar a solução.";return;}
+    if (j.pago) {
+      document.getElementById("titulo").textContent = "Pedido confirmado! 🍪";
+      document.getElementById("texto").textContent = "Recebemos o seu pagamento. Seu pedido está confirmado.";
+      return;
+    }
+  } catch (e) {}
+  if (tentativas < 6) setTimeout(checar, 3000);
+  else {
+    document.getElementById("titulo").textContent = "Ainda estamos confirmando";
+    document.getElementById("texto").textContent = "Se você já pagou, não pague novamente. Entre em contato com a Coolkies se a confirmação não aparecer.";
+  }
+}
+checar();
+</script>
+</body>
+</html>
