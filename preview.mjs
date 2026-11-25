@@ -22,7 +22,7 @@ const server=http.createServer(async(req,res)=>{try{
  const page=pages.get(u.pathname);
  if(!page||!['GET','HEAD'].includes(method))return json(res,404,'Página não encontrada');
  let data;try{data=await readFile(new URL('./public/'+page,import.meta.url));}catch{return json(res,404,'Página ainda indisponível');}
- if(page==='index.html')data=activateClub(activateCheckout(data.toString('utf8').replace("<div style=\"text-align:center;padding:7px;background:#f4dbe4;color:#743e50;font-size:12px\">HOMOLOGAÇÃO · Simulação local, sem cobranças ou envios · Use dados fictícios</div>",'')));
+ if(page==='index.html')data=activateBenefits(activateClub(activateCheckout(data.toString('utf8').replace("<div style=\"text-align:center;padding:7px;background:#f4dbe4;color:#743e50;font-size:12px\">HOMOLOGAÇÃO · Simulação local, sem cobranças ou envios · Use dados fictícios</div>",''))) );
  res.writeHead(200,{...headers,'Content-Type':'text/html; charset=utf-8'});res.end(method==='HEAD'?undefined:data);
  }catch(e){if(!res.headersSent)json(res,502,'Serviço temporariamente indisponível');else res.end();}});
 server.requestTimeout=35000;server.headersTimeout=10000;server.listen(Number(process.env.PORT||8080),'0.0.0.0');
@@ -40,4 +40,21 @@ function activateClub(html){
  const a=html.indexOf('$(\"cep\").addEventListener(\"input\", function(){');const b=html.indexOf('\nvar menuToggle',a);
  if(a>=0&&b>a)html=html.slice(0,a)+"$('cep').addEventListener('input',function(){$('cepMsg').textContent='Frete incluso; CEP validado no cadastro.';});"+html.slice(b);
  return html;
+}
+
+function activateBenefits(html){
+const patches=[
+['Economize R$ 15 em 3 caixas','Economize R$ 15 em 3 caixas + 5% OFF nos cookies avulsos'],
+['Economize R$ 60 em 6 caixas','Economize R$ 60 em 6 caixas + 10% OFF nos cookies avulsos'],
+['<div class="total"><span>Total</span><strong id="ckTotal">','<div id="ckClubDiscountRow" hidden><span>Desconto Clube</span><strong id="ckClubDiscount">—</strong></div><div class="total"><span>Total</span><strong id="ckTotal">'],
+['<div class="checkout-actions"><button class="btn red" id="ckQuote"','<label for="ckClubCode">Código pessoal do Clube (opcional)</label><input id="ckClubCode" type="password" maxlength="48" autocomplete="off" placeholder="Código de membro"><p class="note">Trimestral: 5% · Semestral: 10% nos cookies, incluindo sazonais. Use o e-mail cadastrado e seu código pessoal. Válido enquanto o plano estiver ativo e em dia. Não inclui frete ou embalagens; não cumulativo.</p><div class="checkout-actions"><button class="btn red" id="ckQuote"'],
+["entrega:d,items:lines.map","entrega:d,club_code:$('ckClubCode').value.trim(),items:lines.map"],
+["$('ckTotal').textContent=brl(checkoutSubtotal(lines)+json.shipping_cents/100+(json.packaging_cents||0)/100);","if(!Number.isInteger(json.total_cents)||!Number.isInteger(json.subtotal_cents))throw Error('Cotação indisponível. Tente novamente.'); $('ckProducts').textContent=brl(json.subtotal_cents/100); $('ckClubDiscountRow').hidden=!json.discount_cents; $('ckClubDiscount').textContent='− '+brl((json.discount_cents||0)/100); $('ckTotal').textContent=brl(json.total_cents/100);"],
+["lastTotalCents=Math.round(checkoutSubtotal(lines)*100)+json.shipping_cents+(json.packaging_cents||0);","lastTotalCents=json.total_cents;"],
+["selectedPackaging(),$('giftTo').value","selectedPackaging(),$('ckClubCode').value.trim(),$('giftTo').value"],
+["total_esperado_cents:lastTotalCents","club_code:$('ckClubCode').value.trim(),total_esperado_cents:lastTotalCents"],
+["$('ckShipping').textContent='A calcular';","$('ckClubDiscountRow').hidden=true;$('ckShipping').textContent='A calcular';"]
+];
+for(const [a,b] of patches){if(!html.includes(a))throw Error('Benefit patch mismatch');html=html.replace(a,()=>b);}
+return html;
 }
