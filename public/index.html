@@ -274,7 +274,7 @@ textarea{resize:vertical}.gift-summary label{margin-top:12px}
   <div class="three">
     <div class="tile"><div class="n">1</div><h3>Escolha 3 sabores</h3><p>Entre The OG, Dark Side, Nutella Crush, Caramel Affair e Kinder Crush. Pode repetir o seu favorito.</p></div>
     <div class="tile"><div class="n">2</div><h3>Ganhe o Capítulo do Mês</h3><p>O quarto cookie é inspirado em um livro e muda todo mês. É um sabor que só o clube recebe.</p></div>
-    <div class="tile"><div class="n">3</div><h3>Receba em casa</h3><p>Entregamos em São Paulo e Grande SP, entre os dias 5 e 10 de cada mês. No Clube Coolkies, o frete é grátis.</p></div>
+    <div class="tile"><div class="n">3</div><h3>Receba em casa</h3><p>Entregamos em São Paulo e Grande SP, entre os dias 5 e 10 de cada mês. Frete grátis exclusivamente para o CEP 03120-010; demais CEPs conforme a tabela de entrega.</p></div>
     <div class="tile"><div class="n">+</div><h3>Marcador de página</h3><p>Junto do cookie vai um marcador ilustrado com o livro do mês e com o sabor do cookie. No verso, a ficha do sabor e a numeração da coleção.</p></div>
   </div>
 </div></section>
@@ -386,7 +386,7 @@ textarea{resize:vertical}.gift-summary label{margin-top:12px}
   <h2>Envio</h2>
   <p class="sub">Atendemos São Paulo e Grande São Paulo.</p>
   <h2 style="font-size:1.8rem;margin-top:30px">Perguntas frequentes</h2>
-  <details><summary>Quais regiões vocês atendem?</summary><p>Atendemos os CEPs cadastrados na nossa área de entrega. O Clube tem frete grátis nas regiões atendidas. Avulsos e presentes: tarifa por faixa de CEP. Entregas seg., ter., qui. e sex. das 18h às 22h; qua., sáb. e dom. das 9h às 20h.</p></details>
+  <details><summary>Quais regiões vocês atendem?</summary><p>Atendemos os CEPs cadastrados na nossa área de entrega. Frete de R$ 0,00 exclusivamente para o CEP 03120-010, em todas as modalidades. Para os demais CEPs atendidos, o valor é calculado pela tabela de entrega. Entregas seg., ter., qui. e sex. das 18h às 22h; qua., sáb. e dom. das 9h às 20h.</p></details>
   <details><summary>O que vem no marcador de página?</summary><p>Uma ilustração inspirada no livro do mês e no sabor do cookie, a ficha do sabor no verso e a numeração da coleção, para você juntar um marcador por caixa.</p></details>
   <details><summary>Posso trocar os sabores depois?</summary><p>Pode. É só avisar até o dia 25 e a próxima caixa já vem com os novos sabores.</p></details>
   <details><summary>Posso cancelar quando quiser?</summary><p>Sim, sem multa. Avise até o dia 25 para a caixa seguinte não ser enviada.</p></details>
@@ -619,7 +619,7 @@ $("send").onclick = function(){
   // coletar o aceite contratual e redirecionar para um checkout autorizado.
   status.textContent="O pagamento recorrente ainda não está disponível. Nenhuma assinatura ou cobrança foi criada.";
 };
-// Clube Coolkies: frete grátis para todas as entregas dentro da área atendida.
+// Frete grátis exclusivamente para o CEP 03120-010.
 function cepZona(v){
   var d = v.replace(/\D/g,"");
   if(d.length < 8) return null;
@@ -630,8 +630,8 @@ function cepZona(v){
 }
 $("cep").addEventListener("input", function(){
   var z = cepZona(this.value), m = $("cepMsg");
-  if(z==="capital") m.textContent = "No Clube Coolkies, o frete é grátis (sujeito à confirmação da área de entrega).";
-  else if(z==="grande") m.textContent = "No Clube Coolkies, o frete é grátis (sujeito à confirmação da área de entrega).";
+  if(this.value.replace(/\D/g,"")==="03120010") m.textContent = "Frete: R$ 0,00.";
+  else if(z==="capital"||z==="grande") m.textContent = "Frete calculado pela tabela de CEP; valor confirmado antes da contratação.";
   else if(z==="fora") m.textContent = "Ainda não entregamos nesse CEP. Por enquanto atendemos São Paulo e Grande São Paulo.";
   else m.textContent = "Entregamos em São Paulo e Grande São Paulo.";
 });
@@ -753,7 +753,7 @@ $('ckQuote').addEventListener('click',async function(){
  $('ckShipping').textContent='A calcular';$('ckTotal').textContent='Aguardando frete';$('ckPay').disabled=true;
  $('ckStatus').textContent='Verificando a disponibilidade de cotação...';
  try {
-  var local=location.protocol==='file:'; var json; if(local){var tarifa=CK_CEP[d.cep]; if(!tarifa)throw new Error('CEP fora da tabela automática. Entrega sob consulta.'); json={available:true,region:'Tabela CEP Coolkies',shipping_cents:checkoutMode==='clube'?0:tarifa,packaging_cents:checkoutMode==='presente'?Math.round(packagingPrice(checkoutMode)*100):0};} else {
+  var local=location.protocol==='file:'; var json; if(local){var tarifa=d.cep==='03120010'?0:CK_CEP[d.cep]; if(d.cep!=='03120010'&&(!Number.isInteger(tarifa)||tarifa<=0))throw new Error('CEP fora da tabela automática. Entrega sob consulta.'); json={available:true,region:'Tabela CEP Coolkies',shipping_cents:tarifa,packaging_cents:checkoutMode==='presente'?Math.round(packagingPrice(checkoutMode)*100):0};} else {
   var resp=await fetch('/.netlify/functions/frete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({agendamento:slot,tipo:checkoutMode,embalagem:checkoutMode==='presente'?(document.querySelector('input[name="giftPackaging"]:checked')||{}).value:null,entrega:d,items:lines.map(function(x){return {id:x.id,quantity:x.quantity}})})});
   var contentType=resp.headers.get('content-type')||'';
   if(!contentType.toLowerCase().includes('application/json'))throw new Error('O servidor de frete não está disponível neste ambiente (HTTP '+resp.status+'). Nenhuma cobrança será gerada.');
