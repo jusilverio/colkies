@@ -1,3 +1,5 @@
+import {readFile} from 'node:fs/promises';
+const staticPages=new Map([['/','index.html'],['/index.html','index.html'],['/admin.html','admin.html'],['/obrigado.html','obrigado.html'],['/acompanhar.html','acompanhar.html']]);
 import http from 'node:http';
 import {authorized,allowed} from './netlify/lib/security.mjs';
 import {init,db,seedFreight} from './netlify/lib/db.mjs';
@@ -14,6 +16,7 @@ const send=(res,status,data)=>{res.writeHead(status,{'Content-Type':'application
 let ready=false;
 async function prepare(){try{await init();const n=await seedFreight();ready=true;console.log('MySQL initialized; CEP count:',n);}catch(e){ready=false;console.error('DB initialization:',e.code||e.name);setTimeout(prepare,10000).unref();}}
 const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');if(url.pathname==='/health'){if(!ready)return send(res,503,{ok:false});try{await db().query('SELECT 1');return send(res,200,{ok:true});}catch{return send(res,503,{ok:false});}}
+if(staticPages.has(url.pathname)&&['GET','HEAD'].includes(req.method)){const data=await readFile(new URL('./public/'+staticPages.get(url.pathname),import.meta.url));res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff','X-Robots-Tag':'noindex, nofollow','Referrer-Policy':'no-referrer','X-Frame-Options':'DENY'});return res.end(req.method==='HEAD'?undefined:data);}
 const match=/^\/\.netlify\/functions\/([a-z-]+)$/.exec(url.pathname);const handler=match&&routes.get(match[1]);if(!handler)return send(res,404,{message:'Não encontrado'});if(!ready)return send(res,503,{message:'Banco indisponível.'});
 const route=match[1],restricted=['admin','simulation'].includes(route);
 if(restricted&&!authorized(req.headers.authorization,process.env.COOLKIES_ADMIN_PASSWORD)){
