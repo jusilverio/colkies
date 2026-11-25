@@ -22,7 +22,7 @@ const server=http.createServer(async(req,res)=>{try{
  const page=pages.get(u.pathname);
  if(!page||!['GET','HEAD'].includes(method))return json(res,404,'Página não encontrada');
  let data;try{data=await readFile(new URL('./public/'+page,import.meta.url));}catch{return json(res,404,'Página ainda indisponível');}
- if(page==='index.html')data=activateClub(activateCheckout(data.toString('utf8')));
+ if(page==='index.html')data=activateClub(activateCheckout(data.toString('utf8').replace("<div style=\"text-align:center;padding:7px;background:#f4dbe4;color:#743e50;font-size:12px\">HOMOLOGAÇÃO · Simulação local, sem cobranças ou envios · Use dados fictícios</div>",'')));
  res.writeHead(200,{...headers,'Content-Type':'text/html; charset=utf-8'});res.end(method==='HEAD'?undefined:data);
  }catch(e){if(!res.headersSent)json(res,502,'Serviço temporariamente indisponível');else res.end();}});
 server.requestTimeout=35000;server.headersTimeout=10000;server.listen(Number(process.env.PORT||8080),'0.0.0.0');
