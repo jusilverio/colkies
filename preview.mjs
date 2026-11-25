@@ -44,6 +44,7 @@ function activateClub(html){
 
 function activateBenefits(html){
 const patches=[
+["<div class=\"tile\"><div class=\"n\">+</div><h3>Marcador de página</h3><p>Junto com os cookies vai um marcador ilustrado inspirado no livro do mês e no sabor do cookie.</p></div>","<div class=\"tile\"><div class=\"n\">4</div><h3>Benefícios exclusivos</h3><p>Ganhe 5% de desconto nos cookies avulsos com o plano trimestral e 10% com o semestral. Use seu código pessoal enquanto a assinatura estiver ativa e em dia.</p></div><div class=\"tile\"><div class=\"n\">+</div><h3>Marcador de página</h3><p>Junto com os cookies vai um marcador ilustrado inspirado no livro do mês e no sabor do cookie.</p></div>"],
 ['Economize R$ 15 em 3 caixas','Economize R$ 15 em 3 caixas + 5% OFF nos cookies avulsos'],
 ['Economize R$ 60 em 6 caixas','Economize R$ 60 em 6 caixas + 10% OFF nos cookies avulsos'],
 ['<div class="total"><span>Total</span><strong id="ckTotal">','<div id="ckClubDiscountRow" hidden><span>Desconto Clube</span><strong id="ckClubDiscount">—</strong></div><div class="total"><span>Total</span><strong id="ckTotal">'],
