@@ -1,13 +1,9 @@
 {
-  "name": "coolkies-mysql",
+  "name": "coolkies-preview",
   "private": true,
   "type": "module",
-  "dependencies": {
-    "mysql2": "^3.14.0"
-  },
   "scripts": {
-    "test": "node --test tests/*.test.mjs",
-    "start": "node server.mjs"
+    "start": "node preview.mjs"
   },
   "engines": {
     "node": ">=22"

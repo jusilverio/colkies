@@ -1,2 +1,0 @@
-import {reply} from '../lib/rules.mjs';import {verify} from '../lib/verify-payment.mjs';import {issueTracking} from '../lib/tracking.mjs';
-export default async req=>{if(req.method!=='GET')return reply(405,{});try{const b=Object.fromEntries(new URL(req.url).searchParams);const result=await verify(b);if(result.pago){try{const token=await issueTracking(b.order_nsu,b.transaction_nsu);if(token)result.tracking_token=token;}catch(e){console.error('tracking issue',e.code||e.name);}}return reply(200,result);}catch{return reply(400,{pago:false});}};

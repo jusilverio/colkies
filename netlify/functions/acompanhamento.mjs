@@ -1,2 +1,0 @@
-import {lookupTracking} from '../lib/tracking.mjs';import {reply} from '../lib/rules.mjs';
-export default async req=>{if(req.method!=='POST')return reply(405,{message:'Método inválido'});try{const b=await req.json();const order=await lookupTracking(b.token);return order?reply(200,{order}):reply(404,{message:'Link inválido ou indisponível.'});}catch(e){console.error('tracking',e.code||e.name);return reply(503,{message:'Consulta temporariamente indisponível.'});}};
