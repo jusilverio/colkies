@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {packaging} from '../netlify/lib/packaging.mjs';
+test('4 cookies por caixa, 6 por lata',()=>{assert.equal(packaging('presente',{caixas:2,latas:1},14).cents,3100);assert.equal(packaging('presente',{caixas:0,latas:2},12).cents,3000);assert.throws(()=>packaging('presente',{caixas:1,latas:1},9));assert.throws(()=>packaging('presente',{caixas:-1,latas:2},8));assert.equal(packaging('avulso',null,2).cents,0);});
