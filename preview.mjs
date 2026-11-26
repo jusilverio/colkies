@@ -44,6 +44,15 @@ function activateClub(html){
 
 function activateBenefits(html){
 const patches=[
+["4 cookies por caixa.","Até 4 cookies por caixa."],
+["6 cookies por lata.","Até 6 cookies por lata."],
+["Escolha quatro cookies por caixa com fita ou seis por lata dourada. Você pode combinar as embalagens.","Escolha de 1 a 4 cookies na caixa com fita ou de 1 a 6 na lata dourada. Uma embalagem por pedido de presente."],
+["Caixas com fita (4 cookies)","Caixas com fita (até 4 cookies)"],
+["Latas douradas (6 cookies)","Latas douradas (até 6 cookies)"],
+["n===cap?'Embalagens completas: '+n+' cookies.':n<cap?'Adicione '+(cap-n)+' cookie(s) para completar as embalagens.'","n<=cap?(n?'Presente com '+n+' cookie(s) de até '+cap+'. Você já pode continuar.':'Escolha pelo menos um cookie.')"],
+["(!cap||n!==cap)","(!cap||n>cap||selectedPackaging().length!==1)"],
+["giftCapacity()!==giftUnits()","giftUnits()>giftCapacity()"],
+["Complete as embalagens antes de continuar.","Escolha uma embalagem e respeite sua capacidade máxima."],
 ["<div class=\"tile\"><div class=\"n\">4</div><h3>Um presente do seu jeito</h3><p>Combine caixas e latas no mesmo pedido, de acordo com a quantidade de cookies.</p></div>",''],
 ['</head>',"<style>@media(max-width:600px){#inicio.hero a.btn.red[href=\"#assinar\"]{width:auto;max-width:100%;display:inline-flex;align-items:center;justify-content:center;font-size:15px;padding:10px 19px;min-height:44px;line-height:1.25;white-space:normal;}}</style></head>"],
 ["cookie(ESP.c)+'<span class=\"lbl\">Capítulo do mês","(['heroBox','myBox'].includes(el.id)&&document.querySelector('.chapter-photo')?'<img class=\"cookie\" alt=\"Black Forest Christmas\" style=\"object-fit:cover;display:block;\" src=\"'+document.querySelector('.chapter-photo').getAttribute('src')+'\">':cookie(ESP.c))+'<span class=\"lbl\">Capítulo do mês"],
